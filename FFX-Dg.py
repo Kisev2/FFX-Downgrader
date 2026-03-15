@@ -1,10 +1,3 @@
-"""
-FFX Downgrader — PySide6 GUI
-Recursively finds .ffx files in the input folder (including subfolders),
-downgrades them to a chosen After Effects version, and writes them to the
-output folder while preserving the original directory structure.
-"""
-
 import os
 import sys
 import shutil
@@ -31,9 +24,9 @@ REVERSE_MAP = {v: k for k, v in VERSION_MAP.items()}
 
 class DowngradeWorker(QThread):
     """Runs the downgrade work off the main/UI thread."""
-    log = Signal(str)           # text message
-    progress = Signal(int)      # 0‥100
-    finished_signal = Signal(int, int)   # (success_count, fail_count)
+    log = Signal(str)           
+    progress = Signal(int)     
+    finished_signal = Signal(int, int)  
 
     def __init__(self, input_dir: str, output_dir: str, target_year: int, copy_folders: bool = True):
         super().__init__()
@@ -51,7 +44,7 @@ class DowngradeWorker(QThread):
         output_path = Path(self.output_dir)
         target_byte = VERSION_MAP[self.target_year]
 
-        # Collect every .ffx under input_path
+    
         ffx_files = list(input_path.rglob("*.ffx"))
         total = len(ffx_files)
 
@@ -74,9 +67,9 @@ class DowngradeWorker(QThread):
             if self.copy_folders:
                 dest = output_path / relative
             else:
-                # Flat mode: all files go directly into output root
+            
                 dest = output_path / ffx.name
-                # Handle name collisions by appending a counter
+           
                 if dest.exists() and dest != ffx:
                     stem = ffx.stem
                     suffix = ffx.suffix
@@ -86,17 +79,17 @@ class DowngradeWorker(QThread):
                         counter += 1
 
             try:
-                # Read
+          
                 data = bytearray(ffx.read_bytes())
 
-                # Validate header
+              
                 if data[0:4] != b"RIFX":
                     self.log.emit(f"  ✗  {relative}  — not a valid FFX (bad header)")
                     failed += 1
                     self.progress.emit(int(idx / total * 100))
                     continue
 
-                # Find & patch version byte
+            
                 patched = False
                 for i in range(len(data)):
                     if data[i] in REVERSE_MAP:
@@ -107,7 +100,6 @@ class DowngradeWorker(QThread):
                             break
 
                 if not patched:
-                    # Already at or below target — just copy as-is
                     self.log.emit(f"  ↳  {relative}  — already ≤ AE {self.target_year}, copied as-is")
                     dest.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(str(ffx), str(dest))
@@ -115,7 +107,7 @@ class DowngradeWorker(QThread):
                     self.progress.emit(int(idx / total * 100))
                     continue
 
-                # Write patched file
+
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 dest.write_bytes(data)
 
