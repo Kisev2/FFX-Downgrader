@@ -72,6 +72,12 @@ python Main.py path/to/preset.ffx
 5. Click **⚡ Start Downgrade** — watch the progress bar and log as files are processed
 6. Open the output folder — your downgraded `.ffx` files are ready, with the original folder structure intact
 
+## 🛠️ Using Release version
+
+1. **Already exe**
+2. **No need to install all dependencies**
+3. **Install and use**
+
 > **Tip:** Files that are *already* at or below the target version are copied as-is so you always get a complete set in the output folder.
 
 ---
